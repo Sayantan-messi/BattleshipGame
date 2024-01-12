@@ -1,0 +1,17 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class BattleshipGame {
+    String name;
+    int size;
+    List<int[]> coordinates;
+
+    public BattleshipGame(String name, int size, int x, int y) {
+        this.name = name;
+        this.size = size;
+        this.coordinates = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            this.coordinates.add(new int[]{x + i, y});
+        }
+    }
+}
