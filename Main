@@ -1,93 +1,14 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+package Java.BattleShipGame;
+
 import java.util.Scanner;
 
-public class Main {
-    private final int N;
-    private final char[][] battlefield;
-    private final List<int[]> playerA_ships;
-    private final List<int[]> playerB_ships;
-
-    public Main(int N) {
-        this.N = N;
-        this.battlefield = new char[N][N];
-        for (char[] row : this.battlefield) {
-            java.util.Arrays.fill(row, 'O');
-        }
-        this.playerA_ships = new ArrayList<>();
-        this.playerB_ships = new ArrayList<>();
-    }
-
-    public boolean placeShip(String player, String shipName, int size, int x, int y) {
-        BattleshipGame battleshipGame = new BattleshipGame(shipName, size, x, y);
-
-        for (int[] coordinate : battleshipGame.coordinates) {
-            if ((player.equals("A") && playerA_ships.contains(coordinate)) ||
-                    (player.equals("B") && playerB_ships.contains(coordinate))) {
-                return false; // Invalid placement, ships cannot overlap
-            }
-        }
-
-        if (player.equals("A")) {
-            playerA_ships.addAll(battleshipGame.coordinates);
-        } else {
-            playerB_ships.addAll(battleshipGame.coordinates);
-        }
-
-        return true;
-    }
-
-    public int[] randomFire(String player) {
-        Random random = new Random();
-        int x, y;
-
-        while (true) {
-            x = random.nextInt(N);
-            y = random.nextInt(N);
-
-            if ((player.equals("A") && !playerA_ships.contains(new int[]{x, y})) ||
-                    (player.equals("B") && !playerB_ships.contains(new int[]{x, y}))) {
-                break;
-            }
-        }
-
-        return new int[]{x, y};
-    }
-
-    public void takeTurn(String player) {
-        System.out.println("\nPlayer " + player + "'s turn:");
-        int[] target = randomFire(player.equals("A") ? "B" : "A");
-
-        if (player.equals("A") && playerB_ships.contains(target)) {
-            System.out.println("Hit!");
-            playerB_ships.remove(target);
-            battlefield[target[0]][target[1]] = 'X';
-        } else if (player.equals("B") && playerA_ships.contains(target)) {
-            System.out.println("Hit!");
-            playerA_ships.remove(target);
-            battlefield[target[0]][target[1]] = 'X';
-        } else {
-            System.out.println("Miss!");
-            battlefield[target[0]][target[1]] = '-';
-        }
-    }
-
-    public boolean isGameOver() {
-        return playerA_ships.isEmpty() || playerB_ships.isEmpty();
-    }
-
-    public void displayBattlefield() {
-        for (char[] row : battlefield) {
-            System.out.println(new String(row));
-        }
-    }
+public class MainClass {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the size of the battlefield (N): ");
         int N = scanner.nextInt();
-        Main game = new Main(N);
+        BattleshipGame battleshipGame = new BattleshipGame(N);
 
         for (String player : new String[]{"A", "B"}) {
             for (int i = 0; i < 2; i++) {
@@ -98,7 +19,7 @@ public class Main {
                 System.out.print("Enter the starting Y coordinate for ship " + player + (i + 1) + ": ");
                 int y = scanner.nextInt();
 
-                while (!game.placeShip(player, "SH" + player + (i + 1), size, x, y)) {
+                while (!battleshipGame.placeShip(player, "SH" + player + (i + 1), size, x, y)) {
                     System.out.println("Invalid placement. Ships cannot overlap. Try again.");
                     System.out.print("Enter the starting X coordinate for ship " + player + (i + 1) + ": ");
                     x = scanner.nextInt();
@@ -108,17 +29,17 @@ public class Main {
             }
         }
 
-        while (!game.isGameOver()) {
-            game.displayBattlefield();
-            game.takeTurn("A");
-            if (game.isGameOver()) {
+        while (!battleshipGame.isGameOver()) {
+            battleshipGame.displayBattlefield();
+            battleshipGame.takeTurn("A");
+            if (battleshipGame.isGameOver()) {
                 System.out.println("Player B wins!");
                 break;
             }
 
-            game.displayBattlefield();
-            game.takeTurn("B");
-            if (game.isGameOver()) {
+            battleshipGame.displayBattlefield();
+            battleshipGame.takeTurn("B");
+            if (battleshipGame.isGameOver()) {
                 System.out.println("Player A wins!");
             }
         }
