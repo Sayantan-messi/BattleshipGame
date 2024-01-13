@@ -1,17 +1,86 @@
+package Java.BattleShipGame;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-class BattleshipGame {
-    String name;
-    int size;
-    List<int[]> coordinates;
+public class BattleshipGame {
+    private final int N;
+    private final char[][] battlefield;
+    private final List<int[]> playerA_ships;
+    private final List<int[]> playerB_ships;
 
-    public BattleshipGame(String name, int size, int x, int y) {
-        this.name = name;
-        this.size = size;
-        this.coordinates = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            this.coordinates.add(new int[]{x + i, y});
+    public BattleshipGame(int N) {
+        this.N = N;
+        this.battlefield = new char[N][N];
+        for (char[] row : this.battlefield) {
+            java.util.Arrays.fill(row, 'O');
+        }
+        this.playerA_ships = new ArrayList<>();
+        this.playerB_ships = new ArrayList<>();
+    }
+
+    public boolean placeShip(String player, String shipName, int size, int x, int y) {
+        BattleshipGameConstructor battleshipGameConstructor = new BattleshipGameConstructor(shipName, size, x, y);
+
+        for (int[] coordinate : battleshipGameConstructor.coordinates) {
+            if ((player.equals("A") && playerA_ships.contains(coordinate)) ||
+                    (player.equals("B") && playerB_ships.contains(coordinate))) {
+                return false; // Invalid placement, ships cannot overlap
+            }
+        }
+
+        if (player.equals("A")) {
+            playerA_ships.addAll(battleshipGameConstructor.coordinates);
+        } else {
+            playerB_ships.addAll(battleshipGameConstructor.coordinates);
+        }
+
+        return true;
+    }
+
+    public int[] randomFire(String player) {
+        Random random = new Random();
+        int x, y;
+
+        while (true) {
+            x = random.nextInt(N);
+            y = random.nextInt(N);
+
+            if ((player.equals("A") && !playerA_ships.contains(new int[]{x, y})) ||
+                    (player.equals("B") && !playerB_ships.contains(new int[]{x, y}))) {
+                break;
+            }
+        }
+
+        return new int[]{x, y};
+    }
+
+    public void takeTurn(String player) {
+        System.out.println("\nPlayer " + player + "'s turn:");
+        int[] target = randomFire(player.equals("A") ? "B" : "A");
+
+        if (player.equals("A") && playerB_ships.contains(target)) {
+            System.out.println("Hit!");
+            playerB_ships.remove(target);
+            battlefield[target[0]][target[1]] = 'X';
+        } else if (player.equals("B") && playerA_ships.contains(target)) {
+            System.out.println("Hit!");
+            playerA_ships.remove(target);
+            battlefield[target[0]][target[1]] = 'X';
+        } else {
+            System.out.println("Miss!");
+            battlefield[target[0]][target[1]] = '-';
+        }
+    }
+
+    public boolean isGameOver() {
+        return playerA_ships.isEmpty() || playerB_ships.isEmpty();
+    }
+
+    public void displayBattlefield() {
+        for (char[] row : battlefield) {
+            System.out.println(new String(row));
         }
     }
 }
